@@ -1,26 +1,30 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { Octokit } from "@octokit/rest";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+// This function is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
+	// Register a command called 'extension.getCommits'
+	let disposable = vscode.commands.registerCommand(
+		"extension.getCommits",
+		async () => {
+			// Create a new instance of the Octokit class from the @octokit/rest package
+			const octokit = new Octokit({
+				auth: process.env.GITHUB_TOKEN, // GitHub personal access token
+			});
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "blogs" is now active!');
+			// Call the 'listCommits' method of the Octokit instance to retrieve a list of commits
+			const { data: commits } = await octokit.repos.listCommits({
+				owner: "xlibraries", // Owner of the repository
+				repo: "Blogs", // Name of the repository
+			});
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('blogs.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Blogs!');
-	});
+			// Iterate over each commit in the list and show the commit message in an information message box
+			commits.forEach((commit) => {
+				vscode.window.showInformationMessage(commit.commit.message);
+			});
+		}
+	);
 
+	// Add the disposable to the extension's subscriptions so that it gets disposed when the extension is deactivated
 	context.subscriptions.push(disposable);
 }
-
-// This method is called when your extension is deactivated
-export function deactivate() {}
