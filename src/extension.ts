@@ -20,6 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Iterate over each commit in the list and show the commit message in an information message box
 			commits.forEach((commit) => {
+				// log the commit message to the console
+				console.log("Commit message:");
+				console.log(commit.commit.message);
 				vscode.window.showInformationMessage(commit.commit.message);
 			});
 		}
